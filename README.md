@@ -45,3 +45,13 @@ No necesitas subir la carpeta `.pio` ni el código del ESP32 al repositorio de l
 - 📱 Movimiento: el mismo sensor de orientación, ahora con botón para activarlo/desactivarlo.
 
 Las cámaras no se suben a un servidor por este código: el procesamiento se hace en el navegador. Los modelos de MediaPipe se cargan desde jsDelivr.
+
+
+## Modos disponibles
+- 🎮 Botones
+- 📱 Movimiento
+- 🎤 Voz
+- ✋ Gestos de mano
+- 🙂 Gestos faciales
+
+Si no ves los cinco botones en GitHub Pages, reemplaza los tres archivos `index.html`, `style.css` y `app.js` del repositorio por los de este ZIP y recarga la página.

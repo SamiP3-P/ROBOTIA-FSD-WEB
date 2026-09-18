@@ -130,8 +130,17 @@ h2 { margin-bottom: 0; font-size: 19px; }
   margin-top: 14px;
 }
 
-.mode { background: #f1f5f9; color: #475569; }
+.mode-help {
+  margin: 10px 2px 0;
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.mode { background: #f1f5f9; color: #475569; min-height: 48px; }
 .mode.active { background: #111827; color: white; }
+.mode:hover { filter: brightness(.98); }
 
 .command-badge {
   background: #f1f5f9;
