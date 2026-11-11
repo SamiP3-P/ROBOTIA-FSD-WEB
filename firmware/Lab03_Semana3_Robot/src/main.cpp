@@ -66,6 +66,7 @@
 #define BANDA_MIN_HZ      500.0
 #define BANDA_MAX_HZ      1700.0
 #define VENTANAS_CONFIRMA 3
+#define ESTABILIDAD_HZ    15.0     // un tono real no se mueve; el ruido sí (cambia 30-60 Hz entre ventanas)
 
 struct Tono { const char* nombre; float freq; };
 const Tono TONOS[] = {
@@ -215,6 +216,8 @@ int detectarTono() {
   for (int t = 0; t < NUM_TONOS; t++) {
     int k0 = (int)((TONOS[t].freq - TOLERANCIA_HZ) / df), k1 = (int)((TONOS[t].freq + TOLERANCIA_HZ) / df);
     for (int k = k0; k <= k1; k++) {
+      // solo picos reales (máximo local); un borde que sube hacia afuera no cuenta
+      if (vReal[k] < vReal[k - 1] || vReal[k] < vReal[k + 1]) continue;
       float rel = (ruido > 0) ? vReal[k] / ruido : 0;
       if (rel > mejorRel) { mejorRel = rel; mejor = t; kPico = k; }
     }
@@ -225,7 +228,11 @@ int detectarTono() {
   ultimaMag = b;
   ultimaRel = mejorRel;
 
-  if (mejor >= 0 && mejorRel >= UMBRAL_RELATIVO && b >= UMBRAL_MAGNITUD) return mejor;
+  // El bin elegido debe ser un pico real (máximo local). Si el vecino de afuera
+  // es más alto, la energía viene de un pico FUERA de la ventana (p. ej. ruido
+  // de motores en ~870 Hz junto a la ventana de 950 Hz) y no cuenta como tono.
+  bool picoReal = (b >= a) && (b >= c);
+  if (mejor >= 0 && picoReal && mejorRel >= UMBRAL_RELATIVO && b >= UMBRAL_MAGNITUD) return mejor;
   return SIN_TONO;
 }
 
@@ -239,6 +246,7 @@ const char* NOMBRE_ESTADO[] = {"REPOSO", "VALIDANDO", "MOVIENDO"};
 Estado estado = REPOSO;
 int tonoActual = SIN_TONO;
 int contador = 0;
+float freqRef = 0;                          // frecuencia de la ventana anterior al validar
 
 void cambiarEstado(Estado nuevo, int tono) {
   char msg[64];
@@ -255,7 +263,7 @@ void pasoMaquina(int tono) {
   switch (estado) {
     case REPOSO:
       if (tono != SIN_TONO) {
-        tonoActual = tono; contador = 1;
+        tonoActual = tono; contador = 1; freqRef = ultimaFreq;
         cambiarEstado(VALIDANDO, tono);
       }
       break;
@@ -265,9 +273,12 @@ void pasoMaquina(int tono) {
         cambiarEstado(REPOSO, SIN_TONO);
         tonoActual = SIN_TONO; contador = 0;
       } else if (tono != tonoActual) {        // otro tono: reinicia en 1
-        tonoActual = tono; contador = 1;
+        tonoActual = tono; contador = 1; freqRef = ultimaFreq;
         Serial.printf("VALIDANDO: cambio de tono -> %s, cont = 1\n", TONOS[tono].nombre);
-      } else if (++contador >= VENTANAS_CONFIRMA) {
+      } else if (fabs(ultimaFreq - freqRef) > ESTABILIDAD_HZ) {   // frecuencia inestable = ruido
+        contador = 1; freqRef = ultimaFreq;
+        Serial.printf("VALIDANDO: frecuencia inestable (%.0f Hz), cont = 1\n", ultimaFreq);
+      } else if ((freqRef = ultimaFreq), ++contador >= VENTANAS_CONFIRMA) {
         cambiarEstado(MOVIENDO, tono);
         ejecutarComando(tonoActual);
       }
@@ -281,7 +292,7 @@ void pasoMaquina(int tono) {
         tonoActual = SIN_TONO; contador = 0;
       } else {                                // otro tono válido: para y valida de nuevo
         cambiarEstado(VALIDANDO, tono);
-        tonoActual = tono; contador = 1;
+        tonoActual = tono; contador = 1; freqRef = ultimaFreq;
       }
       break;
   }
