@@ -7,7 +7,7 @@ let characteristic = null;
 let sensorActive = false;
 let lastCommand = "stop";
 let lastSentAt = 0;
-let currentSpeed = 150;
+let currentSpeed = 255;
 let currentMode = "buttons";
 
 let recognition = null;
@@ -140,7 +140,8 @@ const modeSections = {
   accelerometer: "accelerometerMode",
   voice: "voiceMode",
   hands: "handsMode",
-  face: "faceMode"
+  face: "faceMode",
+  tones: "toneMode"
 };
 
 document.querySelectorAll(".mode").forEach(button => {
@@ -158,6 +159,7 @@ document.querySelectorAll(".mode").forEach(button => {
     if (currentMode === "voice") setupVoice();
     if (currentMode === "hands") setLog("Pulsa “Activar cámara” para comenzar.");
     if (currentMode === "face") setLog("Pulsa “Activar cámara facial” para comenzar.");
+    if (currentMode === "tones") setLog("Pulsa “Activar detector de tonos” para comenzar.");
     if (characteristic && currentMode !== "accelerometer") await sendCommand("stop", true);
   });
 });
@@ -483,6 +485,7 @@ function stopAllSensorsExcept(mode) {
   if (mode !== "voice" && voiceActive && recognition) recognition.stop();
   if (mode !== "hands" && handsActive) stopHands();
   if (mode !== "face" && faceActive) stopFace();
+  if (mode !== "tones" && typeof toneActive !== "undefined" && toneActive) stopTones(false);
 }
 
 document.addEventListener("visibilitychange", () => {
@@ -492,6 +495,7 @@ document.addEventListener("visibilitychange", () => {
     if (handsActive) stopHands();
     if (faceActive) stopFace();
     if (voiceActive && recognition) recognition.stop();
+    if (typeof toneActive !== "undefined" && toneActive) stopTones(false);
   }
 });
 

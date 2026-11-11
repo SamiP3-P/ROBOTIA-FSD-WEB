@@ -47,6 +47,7 @@
         <button class="mode" data-mode="voice">🎤 Voz</button>
         <button class="mode" data-mode="hands">✋ Gestos</button>
         <button class="mode" data-mode="face">🙂 Cara</button>
+        <button class="mode" data-mode="tones">🎵 Tonos</button>
       </div>
 
       <p class="mode-help">Puedes cambiar de modo cuando quieras. Solo queda activo el modo seleccionado.</p>
@@ -82,9 +83,9 @@
       <div class="speed-box">
         <div class="speed-header">
           <label for="speed">Velocidad</label>
-          <strong><span id="speedValue">150</span>/255</strong>
+          <strong><span id="speedValue">255</span>/255</strong>
         </div>
-        <input id="speed" type="range" min="0" max="255" value="150">
+        <input id="speed" type="range" min="0" max="255" value="255">
         <div class="speed-labels"><span>0</span><span>255</span></div>
       </div>
     </section>
@@ -103,6 +104,23 @@
         <strong id="voiceText">—</strong>
       </div>
       <p id="voiceSupport" class="hint"></p>
+    </section>
+
+    <section id="toneMode" class="card hidden">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">CONTROL POR TONOS</p>
+          <h2>El robot escucha el tono</h2>
+        </div>
+      </div>
+      <p class="description">El micrófono del robot (INMP441) escucha y la ESP32 decide. Pon el tono cerca del robot: 650 Hz = adelante · 950 Hz = atrás · 1250 Hz = izquierda · 1550 Hz = derecha. Sin tono, el robot se detiene.</p>
+      <button id="toneBtn" class="primary-btn">🎵 Activar control por tonos</button>
+      <div class="sensor-command">
+        <span>Lo que detecta el robot</span>
+        <strong id="toneState">—</strong>
+      </div>
+      <ul id="toneHistory" class="hint"></ul>
+      <p class="hint">Rangos: 605–695 · 905–995 · 1205–1295 · 1505–1595 Hz. Arranca tras 3 lecturas seguidas del mismo tono (~0,2 s).</p>
     </section>
 
     <section id="handsMode" class="card hidden">
@@ -190,5 +208,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
   <script src="app.js"></script>
+  <script src="tonos.js"></script>
 </body>
 </html>

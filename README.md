@@ -55,3 +55,19 @@ Las cámaras no se suben a un servidor por este código: el procesamiento se hac
 - 🙂 Gestos faciales
 
 Si no ves los cinco botones en GitHub Pages, reemplaza los tres archivos `index.html`, `style.css` y `app.js` del repositorio por los de este ZIP y recarga la página.
+
+## Modo 🎵 Tonos (Lab-03)
+
+El que escucha es el **micrófono INMP441 conectado a la ESP32**: la FFT y la decisión ocurren en el robot.
+La página manda `tonos` para activar este modo y muestra lo que el robot detecta (notificaciones BLE).
+
+| Tono | Rango aceptado | Movimiento |
+| --- | --- | --- |
+| 650 Hz | 605–695 Hz | adelante |
+| 950 Hz | 905–995 Hz | atrás |
+| 1250 Hz | 1205–1295 Hz | izquierda |
+| 1550 Hz | 1505–1595 Hz | derecha |
+| sin tono | — | parar |
+
+Cualquier otro comando (`ad`, `at`, `ga`, `gh`, `stop`) vuelve al control manual.
+Firmware: carpeta `firmware/Lab03_Semana3_Robot` (proyecto PlatformIO, mismo nombre y UUID de Bluetooth). Ábrela en VS Code con PlatformIO y pulsa Upload.
